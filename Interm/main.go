@@ -9,7 +9,7 @@ import (
 type IntermChaincode struct {
 }
 
-func (token *ERC20TokenChaincode) Init(stub shim.ChaincodeStubInterface) peer.Response {
+func (token *IntermChaincode) Init(stub shim.ChaincodeStubInterface) peer.Response {
 
 	fmt.Println("Init executed")
 	_, args := stub.GetFunctionAndParameters()
@@ -18,7 +18,7 @@ func (token *ERC20TokenChaincode) Init(stub shim.ChaincodeStubInterface) peer.Re
 }
 
 // Invoke method
-func (token *ERC20TokenChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
+func (token *IntermChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 
 	// Get the function name and parameters
 	function, args := stub.GetFunctionAndParameters()
@@ -29,19 +29,19 @@ func (token *ERC20TokenChaincode) Invoke(stub shim.ChaincodeStubInterface) peer.
 
 	// Query function
 	case function == "createContainer":
-		return *ERC20TokenChaincode.createContainer(stub, args)
+		return *IntermChaincode.createContainer(stub, args)
 	case function == "clearContainer":
-		return *ERC20TokenChaincode.clearContainer(stub, args)
+		return *IntermChaincode.clearContainer(stub, args)
 	case function == "loadContainer":
-		return *ERC20TokenChaincode.loadContainer(stub, args)
+		return *IntermChaincode.loadContainer(stub, args)
 	case function == "getContainer":
-		return *ERC20TokenChaincode.getContainer(stub, args)
+		return *IntermChaincode.getContainer(stub, args)
 	case function == "readyContainer":
-		return *ERC20TokenChaincode.readyContainer(stub, args)
+		return *IntermChaincode.readyContainer(stub, args)
 	case function == "assignTruck":
-		return *ERC20TokenChaincode.assignTruck(stub, args)
+		return *IntermChaincode.assignTruck(stub, args)
 	case function == "addTruck":
-		return *ERC20TokenChaincode.addTruck(stub, args)
+		return *IntermChaincode.addTruck(stub, args)
 
 	}
 
