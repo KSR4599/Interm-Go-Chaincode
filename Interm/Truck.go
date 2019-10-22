@@ -1,19 +1,16 @@
 package main
 
- import (
-
-	// The shim package
-	"github.com/hyperledger/fabric/core/chaincode/shim"
-
-	// peer.Response is in the peer package
-	"github.com/hyperledger/fabric/protos/peer"
-
-	// Client Identity Library
-	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
-
-	"strconv"
- )
+import (
+	"time"
+)
 
 type Truck struct {
-	truckID string 'TRUCK123'
+	truckId            string ``
+	ownershipType      string ``
+	totalNormalWeight  uint64 ``
+	totalFragileWeight uint64 ``
+	containersAlloted  uint64
+	containersLoaded   []Container ``
+	shedule            time.Time   ``
+	route              Route
 }
