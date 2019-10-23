@@ -1,10 +1,15 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"strconv"
 	"time"
+
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"github.com/hyperledger/fabric/protos/peer"
 )
 
 type Container struct {
@@ -25,51 +30,59 @@ type Shipment struct {
 }
 
 type Route struct {
-	origin      string ``
-	destination string ``
-	DateTime    string `time.Now()`
+	origin      string    ``
+	destination string    ``
+	DateTime    time.Time `time.Now()`
 }
 
-func createContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+func (IntermChaincode *IntermChaincode) createContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 
-	container = Container{}
 	source := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(source)
 	contid, _, _ := cid.GetAttributeValue(stub, "containerId")
-	origin, _, _ := cid.GetAttributeValue(stub, "origin")
-	destination, _, _ := cid.GetAttributeValue(stub, "destination")
-	conatiner.containerId := contid + strconv.Itoa(r.Intn(999999))
-	route := Route{}
-	route.origin := origin
-	route.destination := destination
-	route.DateTime := time.Now()
-	container.route := route
-	container.allShipments = [];
-	container.readyToLoad = false;
-	container.normalWeight = 0;
-    container.fragileWeight = 0;
-	container.status = "Intransit";
+	origin1, _, _ := cid.GetAttributeValue(stub, "origin")
+	destination1, _, _ := cid.GetAttributeValue(stub, "destination")
+	var route Route
+
+	route.origin = origin1
+	route.destination = destination1
+	route.DateTime = time.Now()
+
+	var container Container
+	container.containerId = contid + strconv.Itoa(r.Intn(999999))
+	container.route = route
+	container.allShipments = []Shipment{}
+	container.readyToLoad = false
+	container.normalWeight = 0
+	container.fragileWeight = 0
+	container.status = "Intransit"
+
 	jsonContainer, _ := json.Marshal(container)
-	stub.PutState(containter.containerId, jsonContainer)
+	stub.PutState(container.containerId, jsonContainer)
+
 	fmt.Println("Create the Container:-", container)
-	
-	return shim.Success([]byte(container))
+	return shim.Success([]byte("success"))
 }
 
-func getContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response { 
+func (IntermChaincode *IntermChaincode) getContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 
 	qry := `{
 		"selector": {
 		   "containerId": {
-			  `args[0]`
+			  "$eq": `
+	qry += args[0]
+	qry += `
+	  
 		   }
 		}
 	 }`
 
-	 QryContainer, err := stub.GetQueryResult(qry)
+	QryContainer, err := stub.GetQueryResult(qry)
 
-	 if err != nil {
-		return shim.Error("Error in fetching the desired container !!!! "+err.Error())
+	if err != nil {
+		return shim.Error("Error in fetching the desired container !!!! " + err.Error())
+	} else {
+		fmt.Println("The Query Value", QryContainer)
 	}
-	return shim.Success([]byte(QryContainer))
+	return shim.Success([]byte("success"))
 }
