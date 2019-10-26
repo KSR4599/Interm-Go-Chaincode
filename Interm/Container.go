@@ -12,24 +12,24 @@ import (
 )
 
 type Container struct {
-	containerId   string ``
-	normalWeight  uint64 `50`
-	fragileWeight uint64 `0`
-	allShipments  []Shipment
-	route         Route  ``
-	truck         Truck  ``
-	readyToLoad   bool   `true`
-	status        string ``
+	ContainerId   string     `json:"containerId"`
+	NormalWeight  uint64     `json:"normalWeight"`
+	FragileWeight uint64     `json:"fragileWeight"`
+	AllShipments  []Shipment `json:"allShipments"`
+	Route         Route      `json:"route"`
+	Truck         Truck      `json:"truck"`
+	ReadyToLoad   bool       `json:"readyToLoad"`
+	Status        string     `json:"status"`
 }
 
 type Shipment struct {
-	weight       uint64 `0`
+	Weight       uint64 `0`
 	ShipmentType string ``
 }
 
 type Route struct {
-	origin      string ``
-	destination string ``
+	Origin      string ``
+	Destination string ``
 	DateTime    string `time.Now()`
 }
 
@@ -37,39 +37,26 @@ func (IntermChaincode *IntermChaincode) createContainer(stub shim.ChaincodeStubI
 
 	source := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(source)
-	fmt.Println("The args received in the createContainer function :-", args)
 	var route Route
 
-	route.origin = string(args[1])
-	route.destination = string(args[2])
+	route.Origin = string(args[1])
+	route.Destination = string(args[2])
 	currentTime := time.Now()
 	route.DateTime = currentTime.String()
 
 	var container Container
-	container.containerId = string(args[0]) + strconv.Itoa(r.Intn(999999))
-	container.route = route
-	container.allShipments = []Shipment{}
-	container.readyToLoad = false
-	container.normalWeight = 0
-	container.fragileWeight = 0
-	container.status = "Intransit"
+	container.ContainerId = string(args[0]) + strconv.Itoa(r.Intn(999999))
+	container.Route = route
+	container.AllShipments = []Shipment{}
+	container.ReadyToLoad = false
+	container.NormalWeight = 0
+	container.FragileWeight = 0
+	container.Status = "Intransit"
 
-	fmt.Println("Create the Container:-")
-	fmt.Printf("%+v", container)
+	fmt.Println("The following container got created :-", container)
 	jsonBlob, _ := json.Marshal(container)
-	fmt.Println("The marhsal format of Container :-", jsonBlob)
 
-	var cont Container
-	err := json.Unmarshal(jsonBlob, &cont)
-
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-
-	fmt.Println("The unmarshall of Container :-")
-	fmt.Printf("%+v", cont)
-
-	stub.PutState(container.containerId, jsonBlob)
+	stub.PutState(container.ContainerId, jsonBlob)
 
 	return shim.Success([]byte("successful"))
 }
@@ -77,14 +64,23 @@ func (IntermChaincode *IntermChaincode) createContainer(stub shim.ChaincodeStubI
 func (IntermChaincode *IntermChaincode) getContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 
 	fmt.Println("The arg we recieved is :-", args[0])
-	bytes, _ := stub.GetState(args[0])
-	if bytes == nil {
+	jsonBlob, _ := stub.GetState(args[0])
+	if jsonBlob == nil {
 		return shim.Error("Not Container is Found")
 	}
 
-	var container Container
-	_ = json.Unmarshal(bytes, &container)
+	var cont Container
 
-	fmt.Println("The container we got", container)
+	err := json.Unmarshal(jsonBlob, &cont)
+
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	var container Container
+	_ = json.Unmarshal(jsonBlob, &container)
+
+	fmt.Println("The container we got :-")
+	fmt.Printf("%+v", container)
 	return shim.Success([]byte("success"))
 }

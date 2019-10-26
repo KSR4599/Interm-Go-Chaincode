@@ -5,12 +5,12 @@ import (
 )
 
 type Truck struct {
-	truckId            string ``
-	ownershipType      string ``
-	totalNormalWeight  uint64 ``
-	totalFragileWeight uint64 ``
-	containersAlloted  uint64
-	containersLoaded   []Container ``
-	shedule            time.Time   ``
-	route              Route
+	TruckId            string ``
+	OwnershipType      string ``
+	TotalNormalWeight  uint64 ``
+	TotalFragileWeight uint64 ``
+	ContainersAlloted  uint64
+	ContainersLoaded   []Container ``
+	Shedule            time.Time   ``
+	Route              Route
 }
