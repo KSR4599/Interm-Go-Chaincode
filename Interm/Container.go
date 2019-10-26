@@ -197,10 +197,15 @@ func (IntermChaincode *IntermChaincode) clearContainer(stub shim.ChaincodeStubIn
 	tru.TotalFragileWeight = tru.TotalFragileWeight - contt.FragileWeight
 	tru.TotalNormalWeight = tru.TotalNormalWeight - contt.NormalWeight
 	tru.ContainersAlloted = tru.ContainersAlloted - 1
+
+	fmt.Println("The tru.ContainersLoaded :-", tru.ContainersLoaded)
+	fmt.Println("The first container ID :-", tru.ContainersLoaded[0].ContainerId)
+
 	var i int
-	for i = 0; i < len(tru.ContainersLoaded)-1; i++ {
-		if tru.ContainersLoaded[i].ContainerId == contt.ContainerId {
-			tru.ContainersLoaded[i] = tru.ContainersLoaded[len(tru.ContainersLoaded)-1]
+	for i = 0; i <= len(tru.ContainersLoaded)-1; i++ {
+		if tru.ContainersLoaded[i].ContainerId == args[0] {
+			fmt.Println("Inside IF")
+			tru.ContainersLoaded[len(tru.ContainersLoaded)-1], tru.ContainersLoaded[i] = tru.ContainersLoaded[i], tru.ContainersLoaded[len(tru.ContainersLoaded)-1]
 			tru.ContainersLoaded = tru.ContainersLoaded[:len(tru.ContainersLoaded)-1]
 		}
 	}
