@@ -77,10 +77,62 @@ func (IntermChaincode *IntermChaincode) getContainer(stub shim.ChaincodeStubInte
 		fmt.Println("error:", err)
 	}
 
-	var container Container
-	_ = json.Unmarshal(jsonBlob, &container)
+	fmt.Println("The container we got :-")
+	fmt.Printf("%+v", cont)
+	return shim.Success([]byte("successfully got the container"))
+}
+
+func (IntermChaincode *IntermChaincode) loadContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	jsonCont, _ := stub.GetState(args[0])
+	if jsonCont == nil {
+		return shim.Error("No Container is Found")
+	}
+
+	var contt Container
+
+	err := json.Unmarshal(jsonCont, &contt)
+
+	if err != nil {
+		fmt.Println("error:", err)
+	}
 
 	fmt.Println("The container we got :-")
-	fmt.Printf("%+v", container)
-	return shim.Success([]byte("successfully got the container"))
+	fmt.Printf("%+v", contt)
+
+	if contt.ReadyToLoad == true {
+		shim.Error("The container is already ready to load into Truck. Can't add load anymore.")
+	} else {
+		fmt.Println("The container status is not ready to load. So we are good :-)")
+	}
+
+	var weight, _ = strconv.ParseUint(args[2], 10, 64)
+
+	if args[1] == "Fragile" {
+
+		if contt.FragileWeight+weight > 400 {
+			shim.Error("Container will be overloaded!")
+		} else {
+			contt.FragileWeight = contt.FragileWeight + weight
+		}
+	} else {
+		if contt.NormalWeight+weight > 600 {
+			shim.Error("Container will be overloaded!")
+		} else {
+			contt.NormalWeight = contt.NormalWeight + weight
+		}
+	}
+
+	var shipment Shipment
+	shipment.Weight, _ = strconv.ParseUint(args[2], 10, 64)
+	shipment.ShipmentType = args[1]
+
+	contt.AllShipments = append(contt.AllShipments, shipment)
+
+	fmt.Println("The Updated Container :-", contt)
+
+	jsonBlob, _ := json.Marshal(contt)
+
+	stub.PutState(contt.ContainerId, jsonBlob)
+
+	return shim.Success([]byte("Container Loading successful"))
 }
