@@ -58,15 +58,15 @@ func (IntermChaincode *IntermChaincode) createContainer(stub shim.ChaincodeStubI
 
 	stub.PutState(container.ContainerId, jsonBlob)
 
-	return shim.Success([]byte("successful"))
+	return shim.Success([]byte("Container Creation successful"))
 }
 
 func (IntermChaincode *IntermChaincode) getContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 
-	fmt.Println("The arg we recieved is :-", args[0])
+	fmt.Println("The arg we recieved in getContainer is :-", args[0])
 	jsonBlob, _ := stub.GetState(args[0])
 	if jsonBlob == nil {
-		return shim.Error("Not Container is Found")
+		return shim.Error("No Container is Found")
 	}
 
 	var cont Container
@@ -82,5 +82,5 @@ func (IntermChaincode *IntermChaincode) getContainer(stub shim.ChaincodeStubInte
 
 	fmt.Println("The container we got :-")
 	fmt.Printf("%+v", container)
-	return shim.Success([]byte("success"))
+	return shim.Success([]byte("successfully got the container"))
 }

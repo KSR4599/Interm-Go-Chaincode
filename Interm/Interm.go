@@ -34,6 +34,10 @@ func (IntermChaincode *IntermChaincode) Invoke(stub shim.ChaincodeStubInterface)
 		return IntermChaincode.createContainer(stub, args)
 	case function == "getContainer":
 		return IntermChaincode.getContainer(stub, args)
+	case function == "createTruck":
+		return IntermChaincode.createTruck(stub, args)
+	case function == "getTruck":
+		return IntermChaincode.getTruck(stub, args)
 		/*case function == "clearContainer":
 			return *IntermChaincode.clearContainer(stub, args)
 		case function == "loadContainer":
@@ -42,8 +46,7 @@ func (IntermChaincode *IntermChaincode) Invoke(stub shim.ChaincodeStubInterface)
 			return *IntermChaincode.readyContainer(stub, args)
 		case function == "assignTruck":
 			return *IntermChaincode.assignTruck(stub, args)
-		case function == "addTruck":
-			return *IntermChaincode.addTruck(stub, args)
+
 		*/
 	}
 
