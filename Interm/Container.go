@@ -17,7 +17,7 @@ type Container struct {
 	FragileWeight uint64     `json:"fragileWeight"`
 	AllShipments  []Shipment `json:"allShipments"`
 	Route         Route      `json:"route"`
-	Truck         Truck      `json:"truck"`
+	Truck         string     `json:"truck"`
 	ReadyToLoad   bool       `json:"readyToLoad"`
 	Status        string     `json:"status"`
 }
@@ -54,6 +54,9 @@ func (IntermChaincode *IntermChaincode) createContainer(stub shim.ChaincodeStubI
 	container.Status = "Intransit"
 
 	fmt.Println("The following container got created :-", container)
+	fmt.Println("")
+	fmt.Println("*************************************************************")
+	fmt.Println("")
 	jsonBlob, _ := json.Marshal(container)
 
 	stub.PutState(container.ContainerId, jsonBlob)
@@ -128,11 +131,86 @@ func (IntermChaincode *IntermChaincode) loadContainer(stub shim.ChaincodeStubInt
 
 	contt.AllShipments = append(contt.AllShipments, shipment)
 
-	fmt.Println("The Updated Container :-", contt)
+	fmt.Println("The Container is loaded and the updated container is :-", contt)
 
 	jsonBlob, _ := json.Marshal(contt)
+	fmt.Println("")
+	fmt.Println("*************************************************************")
+	fmt.Println("")
 
 	stub.PutState(contt.ContainerId, jsonBlob)
 
 	return shim.Success([]byte("Container Loading successful"))
+}
+
+func (IntermChaincode *IntermChaincode) readyContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	jsonCont, _ := stub.GetState(args[0])
+	if jsonCont == nil {
+		return shim.Error("No Container is Found")
+	}
+
+	var contt Container
+
+	err := json.Unmarshal(jsonCont, &contt)
+
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	contt.ReadyToLoad = true
+	fmt.Println("The container is now ready to load and Updated Container is :-")
+	fmt.Printf("%+v", contt)
+	fmt.Println("")
+	fmt.Println("*************************************************************")
+	fmt.Println("")
+	jsonBlob, _ := json.Marshal(contt)
+
+	stub.PutState(contt.ContainerId, jsonBlob)
+	return shim.Success([]byte("Container Ready Request successful"))
+}
+
+func (IntermChaincode *IntermChaincode) clearContainer(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+	jsonCont, _ := stub.GetState(args[0])
+	if jsonCont == nil {
+		return shim.Error("No Container is Found")
+	}
+
+	var contt Container
+
+	err := json.Unmarshal(jsonCont, &contt)
+
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	contt.Status = "Delivered"
+	jsonBlob, _ := json.Marshal(contt)
+
+	stub.PutState(contt.ContainerId, jsonBlob)
+
+	jsonBlob1, _ := stub.GetState(args[1])
+	var tru Truck
+
+	_ = json.Unmarshal(jsonBlob1, &tru)
+
+	tru.TotalFragileWeight = tru.TotalFragileWeight - contt.FragileWeight
+	tru.TotalNormalWeight = tru.TotalNormalWeight - contt.NormalWeight
+	tru.ContainersAlloted = tru.ContainersAlloted - 1
+	var i int
+	for i = 0; i < len(tru.ContainersLoaded)-1; i++ {
+		if tru.ContainersLoaded[i].ContainerId == contt.ContainerId {
+			tru.ContainersLoaded[i] = tru.ContainersLoaded[len(tru.ContainersLoaded)-1]
+			tru.ContainersLoaded = tru.ContainersLoaded[:len(tru.ContainersLoaded)-1]
+		}
+	}
+
+	fmt.Println("The updated truck :-")
+	fmt.Printf("%+v", tru)
+
+	jsontruck, _ := json.Marshal(tru)
+
+	stub.PutState(tru.TruckId, jsontruck)
+
+	return shim.Success([]byte("Cleared the Container Succesfully"))
 }

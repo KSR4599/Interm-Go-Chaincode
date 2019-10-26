@@ -42,13 +42,10 @@ func (IntermChaincode *IntermChaincode) Invoke(stub shim.ChaincodeStubInterface)
 		return IntermChaincode.assignTruck(stub, args)
 	case function == "loadContainer":
 		return IntermChaincode.loadContainer(stub, args)
-		/*case function == "clearContainer":
-			return *IntermChaincode.clearContainer(stub, args)
-		case function == "readyContainer":
-			return *IntermChaincode.readyContainer(stub, args)
-
-
-		*/
+	case function == "readyContainer":
+		return IntermChaincode.readyContainer(stub, args)
+	case function == "clearContainer":
+		return IntermChaincode.clearContainer(stub, args)
 	}
 
 	return shim.Error(("Bad Function Name = !!!"))

@@ -42,6 +42,9 @@ func (IntermChaincode *IntermChaincode) createTruck(stub shim.ChaincodeStubInter
 	truck.Route = route
 
 	fmt.Println("The following truck got created :-", truck)
+	fmt.Println("")
+	fmt.Println("*************************************************************")
+	fmt.Println("")
 
 	jsonBlob, _ := json.Marshal(truck)
 
@@ -81,21 +84,11 @@ func (IntermChaincode *IntermChaincode) assignTruck(stub shim.ChaincodeStubInter
 		return shim.Error("No Container is Found")
 	}
 
-	var cont Container
-
-	err := json.Unmarshal(jsonBlob, &cont)
-
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-
 	var container Container
 	_ = json.Unmarshal(jsonBlob, &container)
 
-	fmt.Println("The container we got :-")
-	fmt.Printf("%+v", container)
-
 	if container.ReadyToLoad == false {
+		fmt.Println("The container is not yet ready to load")
 		shim.Error("The container is not yet ready to load")
 	} else {
 
@@ -104,18 +97,42 @@ func (IntermChaincode *IntermChaincode) assignTruck(stub shim.ChaincodeStubInter
 
 		_ = json.Unmarshal(jsonBlob1, &tru)
 
-		tru.TotalFragileWeight = tru.TotalFragileWeight + container.FragileWeight
-		tru.TotalNormalWeight = tru.TotalNormalWeight + container.NormalWeight
-		tru.ContainersAlloted = tru.ContainersAlloted + 1
+		container.Truck = tru.TruckId
 
-		tru.ContainersLoaded = append(tru.ContainersLoaded, container)
+		fmt.Println("The updated container after assigning :-")
+		fmt.Printf("%+v", container)
+
+		jsonContd, _ := json.Marshal(container)
+
+		stub.PutState(container.ContainerId, jsonContd)
+
+		fmt.Println("")
+		fmt.Println("--------------------------------------------------------")
+		fmt.Println("")
+
+		jsonBlob3, _ := stub.GetState(args[0])
+		if jsonBlob3 == nil {
+			return shim.Error("No Container is Found")
+		}
+
+		var conta Container
+		_ = json.Unmarshal(jsonBlob3, &conta)
+
+		fmt.Println("The container we got in second try :-")
+		fmt.Printf("%+v", conta)
+
+		tru.TotalFragileWeight = tru.TotalFragileWeight + conta.FragileWeight
+		tru.TotalNormalWeight = tru.TotalNormalWeight + conta.NormalWeight
+		tru.ContainersAlloted = tru.ContainersAlloted + 1
+		tru.ContainersLoaded = append(tru.ContainersLoaded, conta)
+
 		fmt.Println("The updated truck :-")
 		fmt.Printf("%+v", tru)
 
-		jsonBlob, _ = json.Marshal(tru)
+		jsonB, _ := json.Marshal(tru)
 
-		stub.PutState(tru.TruckId, jsonBlob)
+		stub.PutState(tru.TruckId, jsonB)
 
-		return shim.Success([]byte(" Truck Assignment successful"))
 	}
+	return shim.Success([]byte(" Truck Assignment successful"))
 }
